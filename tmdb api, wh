@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        #movies {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-gap: 20px;
+        }
+        .movie {
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+            cursor: pointer;
+        }
+        .movie img {
+            max-width: 100%;
+            height: auto;
+        }
+        #sessionID {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Movie Search</h1>
+        <div id="movies"></div>
+        <button onclick="showSessionID()">Show My Session ID</button>
+        <div id="sessionID"></div>
+        <h2>Watched History</h2>
+        <ul id="watchedHistory"></ul>
+    </div>
+
+    <script>
+        let watchedHistory = {};
+
+        // Function to fetch movies from TMDB API
+        async function fetchMovies() {
+            const apiKey = 'b29bfe548cc2a3e4225effbd54ef0fda';
+            const url = `https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}&language=en-US&page=1`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                displayMovies(data.results);
+            } catch (error) {
+                console.error('Error fetching movies:', error);
+            }
+        }
+
+        // Function to display movies on the webpage
+        function displayMovies(movies) {
+            const moviesContainer = document.getElementById('movies');
+            moviesContainer.innerHTML = '';
+
+            movies.forEach(movie => {
+                const movieDiv = document.createElement('div');
+                movieDiv.classList.add('movie');
+                movieDiv.setAttribute('data-id', movie.id); // set movie id as data attribute
+
+                const img = document.createElement('img');
+                img.src = `https://image.tmdb.org/t/p/w200${movie.poster_path}`;
+                img.alt = movie.title;
+
+                movieDiv.appendChild(img);
+                moviesContainer.appendChild(movieDiv);
+            });
+
+            // Add event listener for each movie
+            const movieElements = document.querySelectorAll('.movie');
+            movieElements.forEach(movie => {
+                movie.addEventListener('click', handleMovieClick);
+            });
+        }
+
+        // Function to handle movie click
+        function handleMovieClick(event) {
+            const movieId = event.currentTarget.getAttribute('data-id');
+            const sessionID = getSessionID();
+            addToWatchedHistory(sessionID, movieId);
+            updateWatchedHistoryUI();
+            updateCookie(); // Update cookies after adding to watched history
+        }
+
+        // Function to add movie to watched history
+        function addToWatchedHistory(sessionID, movieId) {
+            if (!watchedHistory[sessionID]) {
+                watchedHistory[sessionID] = [];
+            }
+            if (!watchedHistory[sessionID].includes(movieId)) {
+                watchedHistory[sessionID].push(movieId);
+            }
+        }
+
+        // Function to update watched history UI
+        function updateWatchedHistoryUI() {
+            const watchedHistoryList = document.getElementById('watchedHistory');
+            watchedHistoryList.innerHTML = '';
+
+            for (const sessionID in watchedHistory) {
+                const movies = watchedHistory[sessionID];
+                const listItem = document.createElement('li');
+                listItem.innerText = `Session ID: ${sessionID} - Watched Movies: ${movies.join(', ')}`;
+                watchedHistoryList.appendChild(listItem);
+            }
+        }
+
+        // Function to generate and display session ID
+        function showSessionID() {
+            const sessionID = getSessionID();
+            const sessionIDContainer = document.getElementById('sessionID');
+            sessionIDContainer.innerText = `Your Session ID: ${sessionID}`;
+        }
+
+        // Function to generate a random session ID
+        function getSessionID() {
+            let sessionID = getCookie("sessionID");
+            if (!sessionID) {
+                sessionID = Math.random().toString(36).substr(2, 9);
+                setCookie("sessionID", sessionID, 30); // Set cookie with 30 days expiration
+            }
+            return sessionID;
+        }
+
+        // Function to set cookie
+        function setCookie(name, value, days) {
+            let expires = "";
+            if (days) {
+                const date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+
+        // Function to get cookie
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        // Function to update cookie with watched history
+        function updateCookie() {
+            const sessionID = getSessionID();
+            const historyJSON = JSON.stringify(watchedHistory[sessionID]);
+            setCookie("watchedHistory_" + sessionID, historyJSON, 30); // Update cookie with watched history
+        }
+
+        // Fetch movies when the page loads
+        window.onload = function() {
+            // Load watched history from cookies
+            const cookies = document.cookie.split(';');
+            cookies.forEach(cookie => {
+                const cookieParts = cookie.split('=');
+                if (cookieParts[0].trim().startsWith('watchedHistory_')) {
+                    const sessionID = cookieParts[0].trim().substring(15);
+                    const historyJSON = decodeURIComponent(cookieParts[1]);
+                    watchedHistory[sessionID] = JSON.parse(historyJSON);
+                }
+            });
+
+            fetchMovies();
+            updateWatchedHistoryUI(); // Update watched history UI with loaded data
+        };
+    </script>
+</body>
+</html>
