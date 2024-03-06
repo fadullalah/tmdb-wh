@@ -1,0 +1,312 @@
+.heroBanner {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-top: 56.25%; /* 16:9 aspect ratio */
+    margin-bottom: -4%;
+    color: #fff;
+    background-size: cover;
+    background-position: center;
+
+    @media (max-width: 600px) {
+        margin-bottom: 15%;
+    }
+
+    @media (min-width: 768px) {
+        height: 750px;
+    }
+
+        .heroBanner__logo {
+            position: absolute;
+            width: 350px;
+            top: -40vw;
+            pointer-events: none; /* Prevent users from clicking or controlling the video */
+            left: 66vw;
+            transform: translateY(-50%);
+            z-index: 1;
+
+            @media (max-width: 600px) {
+                position: relative;
+                width: 10vw;
+                top: -35vw;
+                left: 63vw;
+            }
+            @media (max-width: 1024px) {
+                position: relative;
+                width: 30vw;
+            }
+        }
+
+        .heroBanner__buttons {
+            position: absolute;
+            top: 35vw;
+            left: 5vw;
+            z-index: 3;
+
+            @media (max-width: 600px) {
+                top: 45vw;
+                margin-left: -2vw;
+            }
+
+            .playButton, .moreInfoButton {
+                background-color: #d8ecffa8;
+                display:inline-flex;
+                align-items: center;
+                justify-content: center;
+                color: #000000;
+                border-radius: 25px;
+                border: none;
+                padding: 1vw 3vw;
+                margin-right: 1vw;
+                font-family: "Allerta Stencil", sans-serif;
+                font-size: 1.3vw;
+                font-weight: bold;
+                border: 1px solid #00000084;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                position: relative; /* Added for pseudo-elements positioning */
+                border: 1px solid #000000;
+            
+                &:hover {
+                    background: linear-gradient(98.37deg, #00c8ff5e 0.99%, #ff00005c 100%);
+                    color: #fff;
+                    border: 1px solid #000000;
+                }
+            
+                @media (max-width: 600px) {
+                    font-size: 3vw;
+                    width: 30vw;
+                }
+            
+                @media (max-width: 1024px) {
+                    left: -15px;
+                    margin-top: 10vw;
+                }
+            
+                /* New styles for the 3D effect */
+                &:before,
+                &:after {
+                    content: '';
+                    position: absolute;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(255, 255, 255, 0.2);
+                    border-radius: 25px;
+                    top: 4px;
+                    left: 4px;
+                    transition: all 0.3s ease;
+                }
+            
+                &:hover:before {
+                    top: 8px;
+                    left: 8px;
+                    background: rgba(0, 0, 0, 0.2);
+                    transform: translateY(2px); /* Adjust the amount of movement as needed */
+                    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle box shadow for depth */
+                }
+            
+                &:hover:after {
+                    top: 4px;
+                    left: 4px;
+                    transform: translateY(2px); /* Adjust the amount of movement as needed */
+                    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle box shadow for depth */
+                }
+            }
+            
+        }
+    }
+
+    .video-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        opacity: 45%;
+        pointer-events: none; /* Prevent users from clicking or controlling the video */
+
+        @media (max-width: 600px) {
+            width: 100%;
+            height: 130%;
+        }
+    }
+
+    .heroBanner__overview {
+        bottom: 40%;
+        left: 58vw;
+        max-width: 40vw;
+        font-size: 1.5vw;
+        font-weight: 400;
+        line-height: 1.4;
+        text-shadow: 2px 4px 4px rgba(0, 0, 0, 0.504);
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 3; /* Limit to three lines */
+        -webkit-box-orient: vertical;
+        z-index: 1;
+        color: #ffffffd2;
+        position: absolute;
+        text-overflow: ellipsis;
+        pointer-events: none; /* Prevent users from clicking or controlling the video */
+        text-align: center; /* Center align text */
+
+        @media (max-width: 600px) {
+            bottom: 25%;
+            font-size: 14px;
+            color: #ffffffbe;
+        }
+    }
+
+    .heroBanner__gradient {
+        position: absolute;
+        bottom: -11px;
+        height: 10rem;
+        width: 100%;
+        z-index: 2;
+        background-image: linear-gradient(180deg, transparent, #07080aac, #07080a);
+
+        @media (max-width: 600px) {
+            height: 13vw;
+            bottom: -70px;
+        }
+    }
+
+....
+
+
+:root {
+    font-family: "Allerta Stencil", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+
+    *, *::before, *::after { box-sizing:border-box }
+
+    body {
+        margin:0;
+      background:#000000;
+    }
+    
+    
+    .ball {
+      
+      --delay:0s;
+      --size:0.4;
+      --speed: 20s;
+      
+      aspect-ratio:1;
+      width:calc( 150% * var(--size) );
+      
+      background: linear-gradient(98.37deg, #3d3d3d 0.99%, #38707b 100%);
+      filter:blur( 10vw );
+      
+      border-radius:50%;
+      
+      position:absolute;
+      top:0;
+      left:0;
+      
+      animation: loop var(--speed) infinite linear;
+      animation-delay: var(--delay);
+      transform-origin: 50% 50%;
+      
+      opacity:0.3;
+    }
+    
+    @keyframes loop {
+      0% { transform: translate3D( 0%, 51%, 0 ) rotate(0deg); }
+      5% { transform: translate3D( 8%, 31%, 0 ) rotate(18deg); }
+      10% { transform: translate3D( 22%, 13%, 0 ) rotate(36deg); }
+      15% { transform: translate3D( 40%, 2%, 0 ) rotate(54deg); }
+      20% { transform: translate3D( 46%, 21%, 0 ) rotate(72deg); }
+      25% { transform: translate3D( 50%, 47%, 0 ) rotate(90deg); }
+      30% { transform: translate3D( 53%, 80%, 0 ) rotate(108deg); }
+      35% { transform: translate3D( 59%, 98%, 0 ) rotate(125deg); }
+      40% { transform: translate3D( 84%, 89%, 0 ) rotate(144deg); }
+      45% { transform: translate3D( 92%, 68%, 0 ) rotate(162deg); }
+      50% { transform: translate3D( 99%, 47%, 0 ) rotate(180deg); }
+      55% { transform: translate3D( 97%, 21%, 0 ) rotate(198deg); }
+      60% { transform: translate3D( 80%, 7%, 0 ) rotate(216deg); }
+      65% { transform: translate3D( 68%, 25%, 0 ) rotate(234deg); }
+      70% { transform: translate3D( 59%, 41%, 0 ) rotate(251deg); }
+      75% { transform: translate3D( 50%, 63%, 0 ) rotate(270deg); }
+      80% { transform: translate3D( 38%, 78%, 0 ) rotate(288deg); }
+      85% { transform: translate3D( 21%, 92%, 0 ) rotate(306deg); }
+      90% { transform: translate3D( 3%, 79%, 0 ) rotate(324deg); }
+      100% { transform: translate3D( 0%, 51%, 0 ) rotate(360deg); }
+      
+    }
+    
+    .glow-container {
+      overflow-x:hidden;
+      overflow-y: hidden;
+      position:fixed;      
+      width:100%;
+      min-height:100vh;
+
+      @media (max-width: 600px) {
+        top: 30%;
+    }
+
+    @media (max-width: 1024px) {
+        top: 35%;
+    }
+    }
+    --black2: #121212;
+    --black3: #00000025;
+    --black-lighter: #1f1f1f;
+    --black-light: #1f1f1f;
+    --pink: #81a3a0a8;
+    --orange: #f89e00;
+    --gradient: linear-gradient(98.37deg, #2e829a 0.99%, #ac3d3d 100%);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--black);
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+.skeleton {
+    position: relative;
+    overflow: hidden;
+    background-color: #1f1f1f;
+    &::after {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        transform: translateX(-100%);
+        background-image: linear-gradient(
+            90deg,
+            rgba(#1f1f1f, 0) 0,
+            rgba(#1f1f1f, 0.2) 20%,
+            rgba(#1f1f1f, 0.5) 60%,
+            rgba(#1f1f1f, 0)
+        );
+        animation: shimmer 2s infinite;
+        content: "";
+    }
+
+    @keyframes shimmer {
+        100% {
+            transform: translateX(100%);
+        }
+    }
+}
+
