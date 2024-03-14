@@ -1,0 +1,153 @@
+import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import dayjs from 'dayjs';
+import axios from 'axios';
+import './Bookmark.scss';
+import SwitchTabs from '../../components/switchTabs/SwitchTabs';
+
+const Bookmark = () => {
+    const { url } = useSelector((state) => state.home);
+    const navigate = useNavigate();
+    const [bookmarkItems, setBookmarkItems] = useState([]);
+    const [bookmarkType, setBookmarkType] = useState('movie');
+    const [movieBookmarks, setMovieBookmarks] = useState({});
+    const [tvShowBookmarks, setTVShowBookmarks] = useState({});
+
+    useEffect(() => {
+        const storedMovieBookmarks = JSON.parse(localStorage.getItem('movieBookmarks')) || {};
+        setMovieBookmarks(storedMovieBookmarks);
+
+        const storedTVShowBookmarks = JSON.parse(localStorage.getItem('tvShowBookmarks')) || {};
+        setTVShowBookmarks(storedTVShowBookmarks);
+    }, []);
+
+    useEffect(() => {
+        const fetchBookmarkDetails = async () => {
+            const movieItems = await Promise.all(
+                Object.keys(movieBookmarks).map(async (itemId) => {
+                    try {
+                        const response = await axios.get(`https://api.themoviedb.org/3/movie/${itemId}?api_key=b29bfe548cc2a3e4225effbd54ef0fda`);
+                        const data = response.data;
+                        return {
+                            id: itemId,
+                            title: data.title,
+                            overview: data.overview,
+                            release_date: data.release_date,
+                            poster_path: data.poster_path,
+                            media_type: 'movie'
+                        };
+                    } catch (error) {
+                        console.error('Error fetching movie bookmark details:', error);
+                        return null;
+                    }
+                })
+            );
+    
+            const tvShowItems = await Promise.all(
+                Object.keys(tvShowBookmarks).map(async (itemId) => {
+                    try {
+                        const response = await axios.get(`https://api.themoviedb.org/3/tv/${itemId}?api_key=b29bfe548cc2a3e4225effbd54ef0fda`);
+                        const data = response.data;
+                        return {
+                            id: itemId,
+                            title: data.name,
+                            overview: data.overview,
+                            release_date: data.first_air_date,
+                            poster_path: data.poster_path,
+                            media_type: 'tv'
+                        };
+                    } catch (error) {
+                        console.error('Error fetching TV show bookmark details:', error);
+                        return null;
+                    }
+                })
+            );
+    
+            const items = [...movieItems, ...tvShowItems].filter(item => item !== null);
+            setBookmarkItems(items);
+        };
+    
+        fetchBookmarkDetails();
+    }, [movieBookmarks, tvShowBookmarks]);
+    
+
+    const handleToggle = (newTab) => {
+        setBookmarkType(newTab === 'Movies' ? 'movie' : 'tv');
+    };
+
+    const toggleBookmark = (itemId) => {
+        const updatedBookmarks = { ...movieBookmarks, ...tvShowBookmarks };
+        if (updatedBookmarks[itemId]) {
+            delete updatedBookmarks[itemId];
+        } else {
+            updatedBookmarks[itemId] = true;
+        }
+        if (bookmarkType === 'movie') {
+            setMovieBookmarks(updatedBookmarks);
+            localStorage.setItem("movieBookmarks", JSON.stringify(updatedBookmarks));
+        } else {
+            setTVShowBookmarks(updatedBookmarks);
+            localStorage.setItem("tvShowBookmarks", JSON.stringify(updatedBookmarks));
+        }
+    };
+
+    const isBookmarked = (itemId) => {
+        const allBookmarks = { ...movieBookmarks, ...tvShowBookmarks };
+        return allBookmarks[itemId];
+    };
+
+    return (
+        <div className="bookmark-container">
+            <h2 className="bookmark-heading">Bookmarked Items</h2>
+            <SwitchTabs className="switch-tabs" data={['Movies', 'TV Shows']} onTabChange={handleToggle} />
+            <ul className="bookmark-list">
+                {bookmarkItems.map((item) => (
+                    <li key={item.id} className="bookmark-item" onClick={() => navigate(`/${item.media_type}/${item.id}`)}>
+                        <div className="bookmark-item-image">
+                            {item.poster_path ? (
+                                <img src={`${url.poster}${item.poster_path}`} alt={item.title} />
+                            ) : (
+                                <div className="fallback-poster">No Poster Available</div>
+                            )}
+                        </div>
+                        <div className="bookmark-item-details">
+                            <h3 className="bookmark-item-title">{item.title}</h3>
+                            <p className="bookmark-item-overview">{item.overview}</p>
+                            <p className="bookmark-item-date">{dayjs(item.release_date).format('MMM D, YYYY')}</p>
+                            <button
+                                className={`bookmarkButton ${isBookmarked(item.id) ? "bookmarked" : ""}`}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleBookmark(item.id);
+                                }}
+                            >
+                                {isBookmarked(item.id) ? (
+                                    <svg width="20" height="20" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M3.5 2C3.22386 2 3 2.22386 3 2.5V13.5C3 13.6818 3.09864 13.8492 3.25762 13.9373C3.41659 14.0254 3.61087 14.0203 3.765 13.924L7.5 11.5896L11.235 13.924C11.3891 14.0203 11.5834 14.0254 11.7424 13.9373C11.9014 13.8492 12 13.6818 12 13.5V2.5C12 2.22386 11.7761 2 11.5 2H3.5Z"
+                                            fill="currentColor"
+                                            fillRule="evenodd"
+                                            clipRule="evenodd"
+                                        />
+                                    </svg>
+                                ) : (
+                                    <svg width="20" height="20" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M3 2.5C3 2.22386 3.22386 2 3.5 2H11.5C11.7761 2 12 2.22386 12 2.5V13.5C12 13.6818 11.9014 13.8492 11.7424 13.9373C11.5834 14.0254 11.3891 14.0203 11.235 13.924L7.5 11.5896L3.765 13.924C3.61087 14.0203 3.41659 14.0254 3.25762 13.9373C3.09864 13.8492 3 13.6818 3 13.5V2.5ZM4 3V12.5979L6.97 10.7416C7.29427 10.539 7.70573 10.539 8.03 10.7416L11 12.5979V3H4Z"
+                                            fill="currentColor"
+                                            fillRule="evenodd"
+                                            clipRule="evenodd"
+                                        />
+                                    </svg>
+                                )}
+                            </button>
+                        </div>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+};
+
+export default Bookmark;
